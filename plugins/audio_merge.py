@@ -4,7 +4,7 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 import subprocess
 import time
-from config import API_ID, API_HASH, BOT_TOKEN
+from config import Config
 from progress import progress
 
 DOWNLOAD_DIR = "/content/Drive_bot/Drive_bot/downloads/"
