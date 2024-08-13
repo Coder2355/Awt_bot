@@ -23,7 +23,7 @@ async def set_merge_audio(client, message: Message):
     user_media_files[user_id] = []
     await message.reply_text("Send the first audio file.")
 
-@client.on_message(filters.command("merge_video"))
+@Client.on_message(filters.command("merge_video"))
 async def set_merge_video(client, message: Message):
     user_id = message.from_user.id
     user_merge_mode[user_id] = "video"
