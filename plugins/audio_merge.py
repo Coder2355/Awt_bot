@@ -15,61 +15,22 @@ user_merge_mode = {}
 
 MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024  # 2GB in bytes
 
-app = Client("media_merger_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
-@app.on_message(filters.command("start"))
-async def start(client, message: Message):
-    await message.reply_text(
-        "Welcome! You can use the following commands:\n"
-        "/merge_audio - Merge two audio files.\n"
-        "/merge_video - Merge a video file with an audio file (only for files below 2GB)."
-    )
-
-@app.on_message(filters.command("merge_audio"))
-async def set_merge_audio(client, message: Message):
-
-import os
-import asyncio
-from pyrogram import Client, filters
-from pyrogram.types import Message
-import subprocess
-import time
-from config import API_ID, API_HASH, BOT_TOKEN
-from progress import progress
-
-DOWNLOAD_DIR = "/content/Drive_bot/Drive_bot/downloads/"
-os.makedirs(DOWNLOAD_DIR, exist_ok=True)
-
-user_media_files = {}
-user_merge_mode = {}
-
-MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024  # 2GB in bytes
-
-app = Client("media_merger_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
-
-@app.on_message(filters.command("start"))
-async def start(client, message: Message):
-    await message.reply_text(
-        "Welcome! You can use the following commands:\n"
-        "/merge_audio - Merge two audio files.\n"
-        "/merge_video - Merge a video file with an audio file (only for files below 2GB)."
-    )
-
-@app.on_message(filters.command("merge_audio"))
+@Client.on_message(filters.command("merge_audio"))
 async def set_merge_audio(client, message: Message):
     user_id = message.from_user.id
     user_merge_mode[user_id] = "audio"
     user_media_files[user_id] = []
     await message.reply_text("Send the first audio file.")
 
-@app.on_message(filters.command("merge_video"))
+@client.on_message(filters.command("merge_video"))
 async def set_merge_video(client, message: Message):
     user_id = message.from_user.id
     user_merge_mode[user_id] = "video"
     user_media_files[user_id] = []
     await message.reply_text("Send the video file.")
 
-@app.on_message((filters.video | filters.audio) & ~filters.forwarded)
+@Client.on_message((filters.video | filters.audio) & ~filters.forwarded)
 async def receive_media(client, message: Message):
     user_id = message.from_user.id
 
