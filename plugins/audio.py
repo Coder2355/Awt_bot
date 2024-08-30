@@ -123,7 +123,7 @@ async def handle_remove_audio(client, message):
                 chat_id=message.chat.id,
                 caption=caption,
                 duration=duration,
-                thumb=thumb_metadata,
+                thumb=thumb,
                 video=output_file_no_audio,
                 progress=progress_for_pyrogram,
                 progress_args=("Uploading...", uploader, time.time())
