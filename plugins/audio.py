@@ -5,14 +5,16 @@ import sys
 import math
 import time
 import asyncio
-import logging 
+import logging
 from concurrent.futures import ThreadPoolExecutor
 from flask import Flask, request, jsonify
 from pyrogram import Client, filters
 from plugins import start
 from helper.utils import progress_for_pyrogram
-from plugins import extractor 
+from plugins import extractor
 from pyrogram.errors import FloodWait
+from hachoir.metadata import extractMetadata
+from hachoir.parser import createParser
 
 app = Flask(__name__)
 
@@ -35,12 +37,29 @@ def remove_audio(input_file, output_file):
     success, _ = run_command(command)
     return success
 
-
 async def get_video_details(file_path):
+    title = None
+    artist = None
+    thumb = None
+    duration = 0
+
+    # Extract metadata
+    metadata = extractMetadata(createParser(file_path))
+    if metadata and metadata.has("title"):
+        title = metadata.get("title")
+    if metadata and metadata.has("artist"):
+        artist = metadata.get("artist")
+    if metadata and metadata.has("duration"):
+        duration = metadata.get("duration").seconds
+
     command = ['ffprobe', '-v', 'error', '-show_entries', 'format=duration,size', '-of', 'default=noprint_wrappers=1', file_path]
     success, output = run_command(command)
     if success:
-        details = {}
+        details = {
+            "title": title,
+            "artist": artist,
+            "duration": duration
+        }
         for line in output.splitlines():
             key, value = line.split('=')
             details[key] = value
@@ -64,7 +83,7 @@ async def handle_remove_audio(client, message):
         )
     except Exception as e:
         print(e)
-        return await ms.edit(f"An error occured while downloading.\n\nContact [SUPPORT]({SUPPORT_LINK})", link_preview=False) 
+        return await ms.edit(f"An error occurred while downloading.\n\nContact [SUPPORT]({SUPPORT_LINK})", link_preview=False) 
     
     try:
         await ms.edit_text("Please wait processing...")
@@ -82,14 +101,21 @@ async def handle_remove_audio(client, message):
                 size = details.get('size', 'Unknown')
                 size_mb = round(int(size) / (1024 * 1024), 2)
                 duration_sec = round(float(duration))
-                caption = f"Here's your cleaned video file. Duration: {duration_sec} seconds. Size: {size_mb} MB"
+                caption = f"Here's your cleaned video file. Duration: {duration_sec} seconds. Size: {size_mb} MB\n"
+                if details.get('title'):
+                    caption += f"Title: {details['title']}\n"
+                if details.get('artist'):
+                    caption += f"Artist: {details['artist']}\n"
+
                 uploader = await ms.edit_text("Uploading media...")
             else:
                 caption = "Here's your cleaned video file."
             
             await client.send_video(
                 chat_id=message.chat.id,
-                caption= caption,
+                caption=caption,
+                thumb=thumbnail,
+                duration=duration,
                 video=output_file_no_audio,
                 progress=progress_for_pyrogram,
                 progress_args=("Uploading...", uploader, time.time())
