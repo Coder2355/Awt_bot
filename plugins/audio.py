@@ -114,7 +114,7 @@ async def handle_remove_audio(client, message):
             await client.send_video(
                 chat_id=message.chat.id,
                 caption=caption,
-                thumb=thumbnail,
+                thumb=thumb,
                 duration=duration,
                 video=output_file_no_audio,
                 progress=progress_for_pyrogram,
