@@ -10,7 +10,7 @@ from concurrent.futures import ThreadPoolExecutor
 from flask import Flask, request, jsonify
 from pyrogram import Client, filters
 from plugins import start
-from helper.utils import progress_for_pyrogram, fix_thumb, take_screen_shot
+from helper.utils import progress_for_pyrogram
 from plugins import extractor
 from helper.database import db
 from pyrogram.errors import FloodWait
