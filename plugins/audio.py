@@ -10,11 +10,12 @@ from concurrent.futures import ThreadPoolExecutor
 from flask import Flask, request, jsonify
 from pyrogram import Client, filters
 from plugins import start
-from helper.utils import progress_for_pyrogram
+from helper.utils import progress_for_pyrogram, fix_thumb, take_screen_shot
 from plugins import extractor
 from pyrogram.errors import FloodWait
 from hachoir.metadata import extractMetadata
 from hachoir.parser import createParser
+from helper.ffmpeg1 import fix_thumb, take_screen_shot
 
 app = Flask(__name__)
 
@@ -97,26 +98,38 @@ async def handle_remove_audio(client, message):
 
         if success:
             details = await get_video_details(output_file_no_audio)
-            if details:
-                duration = details.get('duration', 'Unknown')
-                size = details.get('size', 'Unknown')
-                size_mb = round(int(size) / (1024 * 1024), 2)
-                duration_sec = round(float(duration))
-                caption = f"Here's your cleaned video file. Duration: {duration_sec} seconds. Size: {size_mb} MB\n"
-                if details.get('title'):
-                    caption += f"Title: {details['title']}\n"
-                if details.get('artist'):
-                    caption += f"Artist: {details['artist']}\n"
+            duration = details.get('duration', 'Unknown')
+            size = details.get('size', 'Unknown')
+            size_mb = round(int(size) / (1024 * 1024), 2)
+            duration_sec = round(float(duration))
 
-                uploader = await ms.edit_text("Uploading media...")
-            else:
-                caption = "Here's your cleaned video file."
-            
+            # Thumbnail setup
+            ph_path = None
+            c_thumb = await db.get_thumbnail(message.chat.id)
+            if (media.thumbs or c_thumb):
+                if c_thumb:
+                    ph_path = await client.download_media(c_thumb)
+                    width, height, ph_path = await fix_thumb(ph_path)
+                else:
+                    try:
+                        ph_path_ = await take_screen_shot(file_path, os.path.dirname(os.path.abspath(file_path)), random.randint(0, duration - 1))
+                        width, height, ph_path = await fix_thumb(ph_path_)
+                    except Exception as e:
+                        logging.error(f"Error generating thumbnail: {e}")
+
+            caption = f"Here's your cleaned video file. Duration: {duration_sec} seconds. Size: {size_mb} MB\n"
+            if details.get('title'):
+                caption += f"Title: {details['title']}\n"
+            if details.get('artist'):
+                caption += f"Artist: {details['artist']}\n"
+
+            uploader = await ms.edit_text("Uploading media...")
+
             await client.send_video(
                 chat_id=message.chat.id,
                 caption=caption,
-                duration=duration,
-                thumb=thumb,
+                duration=duration_sec,
+                thumb=ph_path,
                 video=output_file_no_audio,
                 progress=progress_for_pyrogram,
                 progress_args=("Uploading...", uploader, time.time())
