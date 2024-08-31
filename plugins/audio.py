@@ -116,7 +116,9 @@ async def handle_remove_audio(client, message):
                         ph_path_ = await take_screen_shot(file_path, os.path.dirname(os.path.abspath(file_path)), random.randint(0, duration - 1))
                         width, height, ph_path = await fix_thumb(ph_path_)
                     except Exception as e:
-                        logging.error(f"Error generating thumbnail: {e}")
+                        ph_path = None
+                        print(e)
+
 
             caption = f"Here's your cleaned video file. Duration: {duration_sec} seconds. Size: {size_mb} MB\n"
             if details.get('title'):
