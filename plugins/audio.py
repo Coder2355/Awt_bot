@@ -12,6 +12,7 @@ from pyrogram import Client, filters
 from plugins import start
 from helper.utils import progress_for_pyrogram, fix_thumb, take_screen_shot
 from plugins import extractor
+from helper.database import db
 from pyrogram.errors import FloodWait
 from hachoir.metadata import extractMetadata
 from hachoir.parser import createParser
