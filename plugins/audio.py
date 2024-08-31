@@ -52,13 +52,6 @@ async def get_video_details(file_path):
     if metadata and metadata.has("duration"):
         duration = metadata.get("duration").seconds
     
-    # If thumbnail exists, extract metadata from it
-    if thumb is not None:
-        parser = createParser(thumb)
-        thumb_metadata = extractMetadata(parser)
-        if thumb_metadata:
-            # Additional logic can be added here to extract specific thumbnail-related metadata if needed.
-            pass
 
     command = ['ffprobe', '-v', 'error', '-show_entries', 'format=duration,size', '-of', 'default=noprint_wrappers=1', file_path]
     success, output = run_command(command)
