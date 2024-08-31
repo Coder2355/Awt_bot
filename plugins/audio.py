@@ -40,17 +40,10 @@ def remove_audio(input_file, output_file):
     return success
 
 async def get_video_details(file_path):
-    title = None
-    artist = None
-    thumb = None
     duration = 0
 
     # Extract metadata
     metadata = extractMetadata(createParser(file_path))
-    if metadata and metadata.has("title"):
-        title = metadata.get("title")
-    if metadata and metadata.has("artist"):
-        artist = metadata.get("artist")
     if metadata and metadata.has("duration"):
         duration = metadata.get("duration").seconds
     
@@ -59,8 +52,6 @@ async def get_video_details(file_path):
     success, output = run_command(command)
     if success:
         details = {
-            "title": title,
-            "artist": artist,
             "duration": duration
         }
         for line in output.splitlines():
@@ -121,10 +112,7 @@ async def handle_remove_audio(client, message):
 
 
             caption = f"Here's your cleaned video file. Duration: {duration_sec} seconds. Size: {size_mb} MB\n"
-            if details.get('title'):
-                caption += f"Title: {details['title']}\n"
-            if details.get('artist'):
-                caption += f"Artist: {details['artist']}\n"
+           
 
             uploader = await ms.edit_text("Uploading media...")
 
