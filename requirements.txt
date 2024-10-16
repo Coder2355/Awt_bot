@@ -4,7 +4,7 @@ aiohttp
 flask==2.0.2
 werkzeug==2.0.2
 gunicorn==20.1.0
-motor==3.1.2
+motor
 dnspython==2.3.0
 hachoir==3.2.0
 Pillow==9.5.0 
