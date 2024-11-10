@@ -4,7 +4,7 @@ class Config(object):
     #Audio-_edit_bot client Config 
     API_ID = os.getenv("API_ID", "21740783")
     API_HASH = os.getenv("API_HASH", "a5dc7fec8302615f5b441ec5e238cd46")
-    BOT_TOKEN = os.getenv("BOT_TOKEN", "6610201435:AAHEv2YoM2ZEtlEdqjilv9mZGjT9Uzzrntw")
+    BOT_TOKEN = os.getenv("BOT_TOKEN", "")
     AUTH_USERS = set(int(x) for x in os.environ.get("AUTH_USERS", "6299192020").split())
 
 
